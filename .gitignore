@@ -1,0 +1,56 @@
+# PRD (internal spec)
+prd.md
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+
+# Datasets
+data/
+*.tar.gz
+
+# Model checkpoints and weights
+checkpoints/
+*.pt
+*.pth
+*.onnx
+
+# Experiment Tracking Artifacts
+wandb/
+.wandb/
+mlruns/
+.mlruns/
+mlartifacts/
+runs/
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log

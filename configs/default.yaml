@@ -1,0 +1,20 @@
+# Default training configuration for CIFAR-10 CNN
+project_name: "cifar10-hyperparameter-sweep"
+tracker: "both"  # "both", "wandb", "mlflow", "none"
+seed: 42
+data_dir: "./data"
+
+# Hyperparameters
+lr: 0.001
+batch_size: 128
+optimizer: "adam"  # "adam", "sgd", "adamw"
+weight_decay: 0.0001
+dropout_rate: 0.3
+conv_dropout: 0.0
+num_blocks: 3
+base_channels: 32
+fc_dim: 256
+epochs: 15
+val_split: 0.1
+save_checkpoint: true
+checkpoint_dir: "./checkpoints"

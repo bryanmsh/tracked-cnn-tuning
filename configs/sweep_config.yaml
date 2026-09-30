@@ -1,0 +1,24 @@
+# Hyperparameter sweep configuration (W&B Sweep and Local Random Sweep compatible)
+name: "cifar10-cnn-hyperparameter-sweep"
+program: "train.py"
+method: "random"
+metric:
+  name: "val_acc"
+  goal: "maximize"
+parameters:
+  lr:
+    values: [0.0003, 0.001, 0.003, 0.01]
+  batch_size:
+    values: [64, 128, 256]
+  optimizer:
+    values: ["adam", "sgd", "adamw"]
+  weight_decay:
+    values: [0.0, 0.0001, 0.001, 0.01]
+  dropout_rate:
+    values: [0.1, 0.3, 0.5]
+  num_blocks:
+    values: [2, 3, 4]
+  epochs:
+    value: 15
+  seed:
+    value: 42
