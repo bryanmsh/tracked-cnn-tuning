@@ -25,10 +25,26 @@ def set_seed(seed: int = 42) -> None:
         torch.backends.cudnn.benchmark = False
 
 
-def get_device() -> torch.device:
-    """Detects and returns optimal available torch device."""
+def get_device(requested: str = "auto") -> torch.device:
+    """
+    Detects and returns optimal available torch device.
+    Verifies tensor execution on GPU to gracefully fallback to CPU if
+    the installed GPU runtime/architecture is incompatible.
+    """
+    if requested.lower() == "cpu":
+        return torch.device("cpu")
+
     if torch.cuda.is_available():
-        return torch.device("cuda")
+        try:
+            # Probe tensor creation on CUDA device
+            test_tensor = torch.zeros(1, device="cuda")
+            _ = test_tensor + 1
+            return torch.device("cuda")
+        except Exception as e:
+            print(f"[Device Warning] GPU detected ({torch.cuda.get_device_name(0)}) but kernel execution failed: {e}")
+            print("[Device Info] Falling back to CPU for reliable training.")
+            return torch.device("cpu")
+
     return torch.device("cpu")
 
 

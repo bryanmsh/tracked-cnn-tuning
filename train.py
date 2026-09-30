@@ -93,7 +93,8 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
     seed = config.get("seed", 42)
     set_seed(seed)
 
-    device = get_device()
+    requested_device = config.get("device", "auto")
+    device = get_device(requested_device)
     print(f"\n[Environment] Using device: {device} | Seed: {seed}")
 
     git_hash = get_git_commit_hash()
@@ -276,6 +277,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--project_name", type=str, default="cifar10-hyperparameter-sweep", help="Tracking project name")
     parser.add_argument("--run_name", type=str, default=None, help="Optional run name")
     parser.add_argument("--data_dir", type=str, default="./data", help="Directory for CIFAR-10 data")
+    parser.add_argument("--device", type=str, default="auto", choices=["auto", "cuda", "cpu"], help="Hardware device to use")
     parser.add_argument("--smoke_test", action="store_true", help="Run 2 short epochs for smoke testing")
     return parser.parse_args()
 

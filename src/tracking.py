@@ -67,7 +67,6 @@ class UnifiedTracker:
                     name=self.run_name,
                     config=self.config,
                     tags=self.tags,
-                    reinit=True,
                 )
                 print(f"[Tracker] W&B initialized (mode={os.environ.get('WANDB_MODE', 'online')})")
             except Exception as e:
@@ -79,9 +78,10 @@ class UnifiedTracker:
             try:
                 import mlflow
 
-                # Store runs locally in ./mlruns
-                mlflow_dir = os.path.abspath("./mlruns")
-                mlflow.set_tracking_uri(f"file:///{mlflow_dir.replace(os.sep, '/')}")
+                # Store runs locally using SQLite backend or filesystem fallback
+                os.environ.setdefault("MLFLOW_ALLOW_FILE_STORE", "true")
+                db_path = os.path.abspath("mlflow.db").replace(os.sep, "/")
+                mlflow.set_tracking_uri(f"sqlite:///{db_path}")
                 mlflow.set_experiment(self.project_name)
 
                 self.mlflow_run = mlflow.start_run(run_name=self.run_name)
