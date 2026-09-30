@@ -3,9 +3,7 @@
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-ee4c2c.svg)](https://pytorch.org/)
 [![Experiment Tracking](https://img.shields.io/badge/tracking-W%26B%20%2F%20MLflow-FFBE00.svg)](https://wandb.ai/)
-[![Project](https://img.shields.io/badge/Pipeline-Project%203-brightgreen.svg)]()
 
-> **Concentration Pipeline — Project 3**  
 > Systematic, reproducible hyperparameter tuning of a modular CIFAR-10 Convolutional Neural Network with unified experiment tracking across **Weights & Biases (W&B)** and **MLflow**.
 
 ---
