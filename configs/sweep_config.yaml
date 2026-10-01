@@ -7,7 +7,7 @@ metric:
   goal: "maximize"
 parameters:
   lr:
-    values: [0.0003, 0.001, 0.003, 0.01]
+    values: [0.0003, 0.001, 0.005, 0.02]
   batch_size:
     values: [64, 128, 256]
   optimizer:
@@ -19,6 +19,8 @@ parameters:
   num_blocks:
     values: [2, 3, 4]
   epochs:
-    value: 15
+    value: 3
+  max_batches:
+    value: 45
   seed:
     value: 42

@@ -9,7 +9,7 @@ import itertools
 import os
 import random
 import yaml
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 
 from train import run_training
 
@@ -19,16 +19,20 @@ def load_yaml_config(path: str) -> Dict[str, Any]:
         return yaml.safe_load(f)
 
 
-def sample_parameters(parameters_def: Dict[str, Any]) -> Dict[str, Any]:
-    """Sample a single configuration from a sweep parameter dictionary."""
+def sample_parameters(
+    parameters_def: Dict[str, Any],
+    rng: Optional[random.Random] = None,
+) -> Dict[str, Any]:
+    """Sample a single configuration from a sweep parameter dictionary using a dedicated RNG."""
+    generator = rng if rng is not None else random
     config: Dict[str, Any] = {}
     for param_name, param_spec in parameters_def.items():
         if "value" in param_spec:
             config[param_name] = param_spec["value"]
         elif "values" in param_spec:
-            config[param_name] = random.choice(param_spec["values"])
+            config[param_name] = generator.choice(param_spec["values"])
         elif "min" in param_spec and "max" in param_spec:
-            config[param_name] = random.uniform(param_spec["min"], param_spec["max"])
+            config[param_name] = generator.uniform(param_spec["min"], param_spec["max"])
         else:
             raise ValueError(f"Unknown parameter spec format for {param_name}: {param_spec}")
     return config
@@ -42,23 +46,27 @@ def run_local_sweep(sweep_config: Dict[str, Any], count: int = 20, tracker: str 
     params_def = sweep_config.get("parameters", {})
     project_name = sweep_config.get("name", "cifar10-hyperparameter-sweep")
 
-    print(f"\n==========================================")
-    print(f"  Starting Local Sweep: {project_name}")
-    print(f"  Total planned trials: {count}")
-    print(f"  Tracking backend: {tracker}")
-    print(f"==========================================\n")
+    # Dedicated sweep RNG so that set_seed() inside training runs doesn't reset parameter sampling
+    sweep_seed = sweep_config.get("seed", 42)
+    sweep_rng = random.Random(sweep_seed)
+
+    print(f"\n==========================================", flush=True)
+    print(f"  Starting Local Sweep: {project_name}", flush=True)
+    print(f"  Total planned trials: {count}", flush=True)
+    print(f"  Tracking backend: {tracker}", flush=True)
+    print(f"==========================================\n", flush=True)
 
     results: List[Dict[str, Any]] = []
 
     for trial_idx in range(1, count + 1):
-        sampled_config = sample_parameters(params_def)
+        sampled_config = sample_parameters(params_def, rng=sweep_rng)
         sampled_config["tracker"] = tracker
         sampled_config["project_name"] = project_name
         sampled_config["run_name"] = f"sweep_trial_{trial_idx:03d}"
         sampled_config["tags"] = ["sweep", "local_sweep"]
 
-        print(f"\n--- [Trial {trial_idx}/{count}] Running: {sampled_config['run_name']} ---")
-        print(f"Config: {sampled_config}")
+        print(f"\n--- [Trial {trial_idx}/{count}] Running: {sampled_config['run_name']} ---", flush=True)
+        print(f"Config: {sampled_config}", flush=True)
 
         try:
             summary = run_training(sampled_config)
@@ -75,20 +83,21 @@ def run_local_sweep(sweep_config: Dict[str, Any], count: int = 20, tracker: str 
                 "weight_decay": sampled_config.get("weight_decay"),
             })
         except Exception as e:
-            print(f"[Error in Trial {trial_idx}]: {e}")
+            print(f"[Error in Trial {trial_idx}]: {e}", flush=True)
 
     # Print summary table sorted by best validation accuracy
-    print("\n==========================================")
-    print("           SWEEP RESULTS SUMMARY          ")
-    print("==========================================")
+    print("\n==========================================", flush=True)
+    print("           SWEEP RESULTS SUMMARY          ", flush=True)
+    print("==========================================", flush=True)
     sorted_results = sorted(results, key=lambda x: x["best_val_acc"], reverse=True)
     header = f"{'Run':<18} | {'Best Val Acc':<12} | {'Test Acc':<10} | {'LR':<8} | {'Batch':<6} | {'Opt':<6} | {'Blocks':<6}"
-    print(header)
-    print("-" * len(header))
+    print(header, flush=True)
+    print("-" * len(header), flush=True)
     for r in sorted_results:
         print(
             f"{r['run_name']:<18} | {r['best_val_acc']:>10.2f}% | {r['test_acc']:>8.2f}% | "
-            f"{r['lr']:<8} | {r['batch_size']:<6} | {r['optimizer']:<6} | {r['num_blocks']:<6}"
+            f"{r['lr']:<8} | {r['batch_size']:<6} | {r['optimizer']:<6} | {r['num_blocks']:<6}",
+            flush=True,
         )
 
 

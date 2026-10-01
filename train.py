@@ -164,9 +164,9 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
         )
 
     epochs = 2 if smoke_test else config.get("epochs", 15)
-    max_batches = 5 if smoke_test else 0
+    max_batches = 5 if smoke_test else config.get("max_batches", 0)
 
-    print(f"[Training] Starting training for {epochs} epochs (smoke_test={smoke_test})...")
+    print(f"[Training] Starting training for {epochs} epochs (smoke_test={smoke_test}, max_batches={max_batches})...", flush=True)
 
     best_val_acc = 0.0
     best_val_epoch = 0
@@ -227,14 +227,15 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
             f"Epoch [{epoch:02d}/{epochs:02d}] "
             f"Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.2f}% | "
             f"Val Loss: {val_loss:.4f} | Val Acc: {val_acc:.2f}% | "
-            f"Time: {epoch_duration:.2f}s"
+            f"Time: {epoch_duration:.2f}s",
+            flush=True,
         )
 
     total_train_time = time.time() - start_train_time
-    print(f"\n[Training Completed] Total time: {total_train_time:.2f}s | Best Val Acc: {best_val_acc:.2f}% (Epoch {best_val_epoch})")
+    print(f"\n[Training Completed] Total time: {total_train_time:.2f}s | Best Val Acc: {best_val_acc:.2f}% (Epoch {best_val_epoch})", flush=True)
 
     # Final evaluation on test set
-    print("[Evaluation] Evaluating on test set...")
+    print("[Evaluation] Evaluating on test set...", flush=True)
     test_loss, test_acc = evaluate(
         model=model,
         dataloader=test_loader,
@@ -242,7 +243,7 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
         device=device,
         max_batches=max_batches,
     )
-    print(f"[Test Results] Test Loss: {test_loss:.4f} | Test Acc: {test_acc:.2f}%")
+    print(f"[Test Results] Test Loss: {test_loss:.4f} | Test Acc: {test_acc:.2f}%", flush=True)
 
     summary = {
         "final_train_loss": train_loss,
@@ -272,6 +273,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--conv_dropout", type=float, default=0.0, help="Conv block dropout rate")
     parser.add_argument("--num_blocks", type=int, default=3, help="Number of conv blocks (depth)")
     parser.add_argument("--epochs", type=int, default=15, help="Number of training epochs")
+    parser.add_argument("--max_batches", type=int, default=0, help="Max batches per epoch (0 = all)")
     parser.add_argument("--seed", type=int, default=42, help="Fixed random seed")
     parser.add_argument("--tracker", type=str, default="both", choices=["both", "wandb", "mlflow", "none"], help="Tracking backend")
     parser.add_argument("--project_name", type=str, default="cifar10-hyperparameter-sweep", help="Tracking project name")
