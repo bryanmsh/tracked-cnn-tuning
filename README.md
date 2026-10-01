@@ -177,9 +177,14 @@ A 15-trial hyperparameter sweep was executed across the parameter space with dua
 | 14 | `sweep_trial_005` | **29.83%** | 23.78% | 2.0868 | 34.72% | 1.7492 | 0.005 | 64 | `adam` | 0.01 | 0.3 | 3 |
 | 15 | `sweep_trial_008` | **17.60%** | 17.36% | 2.0901 | 24.07% | 1.9354 | 0.02 | 256 | `adam` | 0.01 | 0.1 | 4 |
 
+### Empirical Hyperparameter Trends
+![Hyperparameter Analysis](assets/hyperparameter_analysis.png)
+
 ---
 
 ## 8. Diagnostic Curve Analysis
+
+![Training Curves](assets/training_curves.png)
 
 Inspecting metrics across runs demonstrates three distinct training regimes:
 
