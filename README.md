@@ -226,7 +226,60 @@ Every metric matched to 4 decimal places, proving complete deterministic provena
 
 ---
 
-## 10. Reading Training Curves
+## 10. Per-Class Evaluation & Confusion Matrix Analysis
+
+Evaluating the winning model (`sweep_trial_014`) across the 10,000 CIFAR-10 test set images reveals significant variation in class-specific discriminative performance:
+
+| Class | Accuracy / Recall (%) | Precision (%) | Primary Confusion Patterns |
+|---|:---:|:---:|---|
+| **Ship** | **84.00%** | 60.78% | High recall; distinct blue/water background signatures |
+| **Automobile** | **76.40%** | 69.58% | Strong shape detection; occasionally confused with trucks |
+| **Dog** | **68.20%** | 35.37% | High sensitivity to quadrupeds; frequently false-positive for cats |
+| **Frog** | **60.80%** | 75.15% | High precision; distinct textures and postures |
+| **Airplane** | **57.80%** | 71.80% | Clear silhouette against sky; occasionally confused with birds/ships |
+| **Horse** | **53.70%** | 73.97% | Strong precision; confused with deer and dogs |
+| **Bird** | **50.70%** | 47.21% | Moderate recognition; confused with airplanes and frogs |
+| **Truck** | **46.60%** | **86.14%** | Highest precision; highly conservative predictions |
+| **Cat** | **41.50%** | 36.37% | Common failure mode: heavily confused with dogs (30% false positive) |
+| **Deer** | **34.60%** | 69.76% | Challenging thin features; confused with horses and birds |
+
+### Confusion Matrix Heatmap
+![Confusion Matrix](assets/confusion_matrix.png)
+
+---
+
+## 11. Inference & Standalone Model Export
+
+The codebase provides [`infer.py`](infer.py) to load any checkpoint, evaluate test metrics, generate confusion matrices, run single-sample inference, or export models for deployment:
+
+### Comprehensive Evaluation & Confusion Matrix Generation
+```bash
+python infer.py --checkpoint checkpoints/sweep_trial_014_best.pt --eval_test --plot_cm
+```
+
+### Standalone Model Export (TorchScript)
+Exports the model into a standalone, serialized format (`.pt`) that runs independently of Python source code:
+```bash
+python infer.py --checkpoint checkpoints/sweep_trial_014_best.pt --export_torchscript
+```
+
+### Single-Image Test Prediction
+Runs forward inference on a specific test sample and prints top-3 predicted classes with softmax probabilities:
+```bash
+python infer.py --checkpoint checkpoints/sweep_trial_014_best.pt --sample_idx 42
+```
+```
+[Sample Prediction] Test Sample #42:
+True Class: dog
+Top Predictions:
+  1. dog          (61.47%)
+  2. cat          (30.41%)
+  3. bird         (5.11%)
+```
+
+---
+
+## 12. Reading Training Curves
 
 The tracking dashboards (W&B / MLflow) allow visual diagnosis of training dynamics:
 1. **Overfitting:** Training loss continues dropping while validation loss rises after a specific epoch. *Mitigation:* increase `dropout_rate`, add `weight_decay`, or increase data augmentation.
@@ -235,7 +288,7 @@ The tracking dashboards (W&B / MLflow) allow visual diagnosis of training dynami
 
 ---
 
-## 11. Reproducibility & Provenance
+## 13. Reproducibility & Provenance
 
 Every run strictly logs:
 - Exact random seed (`seed=42`) setting Python, NumPy, and PyTorch seeds.
@@ -245,9 +298,9 @@ Every run strictly logs:
 
 ---
 
-## 12. Running Tests
+## 14. Running Tests
 
-Run the test suite to verify model mechanics and data transforms:
+Run the test suite to verify model mechanics, data transforms, and inference pipelines:
 ```bash
 python -m unittest discover tests
 ```
